@@ -1,0 +1,29 @@
+-- This script will be used to initialize the database
+-- MongoDB doesn't require SQL, but this serves as documentation
+-- The actual database initialization will happen through Prisma
+
+-- Users Collection Structure:
+-- {
+--   _id: ObjectId,
+--   name: String,
+--   email: String (unique),
+--   password: String (hashed),
+--   role: "CITIZEN" | "ADMIN",
+--   createdAt: Date
+-- }
+
+-- Complaints Collection Structure:
+-- {
+--   _id: ObjectId,
+--   title: String,
+--   description: String,
+--   photoUrl: String?,
+--   location: String?,
+--   category: String,
+--   severity: Number (default: 1),
+--   status: "RECEIVED" | "IN_PROGRESS" | "RESOLVED",
+--   assignedTo: String?,
+--   citizenId: ObjectId (reference to User),
+--   createdAt: Date,
+--   updatedAt: Date
+-- }
