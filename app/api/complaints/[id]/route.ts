@@ -2,7 +2,10 @@ import { type NextRequest, NextResponse } from "next/server"
 import { prisma } from "@/lib/prisma"
 import { verifyToken } from "@/lib/auth"
 
-export async function PATCH(request: NextRequest, { params }: { params: { id: string } }) {
+export async function PATCH(
+  request: NextRequest,
+  { params }: { params: { id: string } }
+) {
   try {
     const token = request.cookies.get("auth-token")?.value
 
@@ -15,8 +18,9 @@ export async function PATCH(request: NextRequest, { params }: { params: { id: st
       return NextResponse.json({ message: "Invalid token" }, { status: 401 })
     }
 
+    // ✅ Convert userId to number
     const user = await prisma.user.findUnique({
-      where: { id: payload.userId },
+      where: { id: Number(payload.userId) },
     })
 
     if (!user || user.role !== "ADMIN") {
@@ -25,11 +29,12 @@ export async function PATCH(request: NextRequest, { params }: { params: { id: st
 
     const { status, assignedTo } = await request.json()
 
+    // ✅ Convert complaint id to number
     const complaint = await prisma.complaint.update({
-      where: { id: params.id },
+      where: { id: Number(params.id) },
       data: {
         ...(status && { status }),
-        ...(assignedTo !== undefined && { assignedTo }),
+        ...(assignedTo !== undefined && { assignedTo: assignedTo }),
       },
       include: {
         citizen: {

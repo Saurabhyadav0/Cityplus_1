@@ -373,7 +373,7 @@ export default function AdminPage() {
                         <TableCell>
                           <div className="w-40">
                             <DepartmentDropdown
-                              value={complaint.assignedTo}
+                              value={complaint.assignedTo ?? null}
                               onValueChange={(value) => updateComplaint(complaint.id, { assignedTo: value })}
                               disabled={updatingIds.has(complaint.id)}
                             />

@@ -31,7 +31,7 @@ export async function POST(request: NextRequest) {
         location,
         photoUrl,
         category,
-        citizenId: payload.userId,
+        citizenId: Number( payload.userId),
       },
       include: {
         citizen: {
@@ -64,7 +64,7 @@ export async function GET(request: NextRequest) {
     }
 
     const user = await prisma.user.findUnique({
-      where: { id: payload.userId },
+      where: { id:Number( payload.userId )},
     })
 
     if (!user) {
@@ -92,7 +92,7 @@ export async function GET(request: NextRequest) {
       // Citizens can only see their own complaints
       complaints = await prisma.complaint.findMany({
         where: {
-          citizenId: payload.userId,
+          citizenId: Number(payload.userId) ,
         },
         include: {
           citizen: {
