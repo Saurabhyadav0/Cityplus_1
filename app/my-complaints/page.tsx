@@ -38,11 +38,13 @@ export default function MyComplaintsPage() {
   const { toast } = useToast()
   const router = useRouter()
 
+
   useEffect(() => {
-    if (!user) {
-      router.push("/auth/login")
-      return
-    }
+    // if (!user) {
+    //   console.log("User not authenticated, redirecting to login")
+    //   router.push("/auth/login")
+    //   return
+    // }
     fetchComplaints()
   }, [user, router])
 

@@ -35,7 +35,7 @@ export default function ReportPage() {
         description: "Please sign in to report an issue",
         variant: "destructive",
       })
-      router.push("/auth/login")
+      router.push("/my-complaints")
       return
     }
 

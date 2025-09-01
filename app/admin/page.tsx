@@ -41,14 +41,14 @@ export default function AdminPage() {
   const router = useRouter()
 
   useEffect(() => {
-    if (!user) {
-      router.push("/auth/login")
-      return
-    }
-    if (user.role !== "ADMIN") {
-      router.push("/")
-      return
-    }
+    // if (!user) {
+    //   router.push("/auth/login")
+    //   return
+    // }
+    // if (user.role !== "ADMIN") {
+    //   router.push("/")
+    //   return
+    // }
     fetchComplaints()
   }, [user, router])
 

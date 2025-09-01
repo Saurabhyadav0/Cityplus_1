@@ -11,7 +11,7 @@ interface User {
 }
 
 export function useAuth() {
-  const [user, setUser] = useState<User | null>(null)
+  const [user, setUser] = useState<User>()
   const [loading, setLoading] = useState(true)
   const router = useRouter()
 
