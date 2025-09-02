@@ -2,6 +2,7 @@ import { type NextRequest, NextResponse } from "next/server"
 import { prisma } from "@/lib/prisma"
 import { verifyToken } from "@/lib/auth"
 import { categorizeComplaint } from "@/lib/categories"
+import { generatePriorityScore } from "@/lib/ai-priority"
 
 export async function POST(request: NextRequest) {
   try {
@@ -24,6 +25,14 @@ export async function POST(request: NextRequest) {
 
     const category = categorizeComplaint(title, description)
 
+    // ⭐ Try AI, fallback to default (1) if error
+    let priority = 1
+    try {
+      priority = await generatePriorityScore(title, description, photoUrl)
+    } catch (err) {
+      console.warn("AI priority generation failed, using default = 1", err)
+    }
+
     const complaint = await prisma.complaint.create({
       data: {
         title,
@@ -31,7 +40,8 @@ export async function POST(request: NextRequest) {
         location,
         photoUrl,
         category,
-        citizenId: Number( payload.userId),
+        citizenId: Number(payload.userId),
+        priority, // ⭐ AI-generated (or fallback)
       },
       include: {
         citizen: {
@@ -50,6 +60,7 @@ export async function POST(request: NextRequest) {
   }
 }
 
+
 export async function GET(request: NextRequest) {
   try {
     const token = request.cookies.get("auth-token")?.value
@@ -64,7 +75,7 @@ export async function GET(request: NextRequest) {
     }
 
     const user = await prisma.user.findUnique({
-      where: { id:Number( payload.userId )},
+      where: { id: Number(payload.userId) },
     })
 
     if (!user) {
@@ -85,14 +96,14 @@ export async function GET(request: NextRequest) {
           },
         },
         orderBy: {
-          createdAt: "desc",
+          priority: "desc", // ⭐ highest priority first
         },
       })
     } else {
       // Citizens can only see their own complaints
       complaints = await prisma.complaint.findMany({
         where: {
-          citizenId: Number(payload.userId) ,
+          citizenId: Number(payload.userId),
         },
         include: {
           citizen: {
