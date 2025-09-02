@@ -22,7 +22,6 @@ export default function LocationPicker({ location, onSelect }: MapProps) {
 
   const autocompleteRef = useRef<google.maps.places.Autocomplete | null>(null);
 
-  // Detect current location ONLY if no location was provided
   useEffect(() => {
     if (!location && navigator.geolocation) {
       navigator.geolocation.getCurrentPosition(
