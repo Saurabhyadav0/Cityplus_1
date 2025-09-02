@@ -1,62 +1,69 @@
-"use client"
+"use client";
 
-import type React from "react"
+import type React from "react";
 
-import { useState } from "react"
-import { useRouter } from "next/navigation"
-import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
-import { Textarea } from "@/components/ui/textarea"
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import { Navbar } from "@/components/navbar"
-import { Footer } from "@/components/footer"
-import { FileUpload } from "@/components/file-upload"
-import { useToast } from "@/hooks/use-toast"
-import { useAuth } from "@/hooks/use-auth"
-import { FileText, MapPin } from "lucide-react"
+import { useState } from "react";
+import { useRouter } from "next/navigation";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import { Navbar } from "@/components/navbar";
+import { Footer } from "@/components/footer";
+import { FileUpload } from "@/components/file-upload";
+import { useToast } from "@/hooks/use-toast";
+import { useAuth } from "@/hooks/use-auth";
+import { FileText, MapPin } from "lucide-react";
+import LocationPicker from "@/components/LocationPicker";
 
 export default function ReportPage() {
-  const [title, setTitle] = useState("")
-  const [description, setDescription] = useState("")
-  const [location, setLocation] = useState("")
-  const [selectedFile, setSelectedFile] = useState<File | null>(null)
-  const [loading, setLoading] = useState(false)
-  const { user } = useAuth()
-  const { toast } = useToast()
-  const router = useRouter()
+  const [title, setTitle] = useState("");
+  const [description, setDescription] = useState("");
+  const [location, setLocation] = useState("");
+  const [selectedFile, setSelectedFile] = useState<File | null>(null);
+  const [loading, setLoading] = useState(false);
+  const { user } = useAuth();
+  const { toast } = useToast();
+  const router = useRouter();
 
   const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault()
+    e.preventDefault();
 
     if (!user) {
       toast({
         title: "Authentication Required",
         description: "Please sign in to report an issue",
         variant: "destructive",
-      })
-      router.push("/my-complaints")
-      return
+      });
+      router.push("/my-complaints");
+      return;
     }
 
-    setLoading(true)
+    setLoading(true);
 
     try {
-      let photoUrl = null
+      let photoUrl = null;
 
       // Upload photo if selected
       if (selectedFile) {
-        const formData = new FormData()
-        formData.append("file", selectedFile)
+        const formData = new FormData();
+        formData.append("file", selectedFile);
 
         const uploadResponse = await fetch("/api/upload", {
           method: "POST",
           body: formData,
-        })
+        });
 
         if (uploadResponse.ok) {
-          const uploadData = await uploadResponse.json()
-          photoUrl = uploadData.url
+          const uploadData = await uploadResponse.json();
+          photoUrl = uploadData.url;
         }
       }
 
@@ -72,33 +79,34 @@ export default function ReportPage() {
           location,
           photoUrl,
         }),
-      })
+      });
 
       if (response.ok) {
         toast({
           title: "Issue Reported Successfully",
-          description: "Your complaint has been submitted and will be reviewed shortly.",
-        })
-        router.push("/my-complaints")
+          description:
+            "Your complaint has been submitted and will be reviewed shortly.",
+        });
+        router.push("/my-complaints");
       } else {
-        const error = await response.json()
+        const error = await response.json();
         toast({
           title: "Error",
           description: error.message || "Failed to submit complaint",
           variant: "destructive",
-        })
+        });
       }
     } catch (error) {
-      console.error("Submit error:", error)
+      console.error("Submit error:", error);
       toast({
         title: "Error",
         description: "Something went wrong. Please try again.",
         variant: "destructive",
-      })
+      });
     } finally {
-      setLoading(false)
+      setLoading(false);
     }
-  }
+  };
 
   return (
     <div className="min-h-screen bg-background">
@@ -107,15 +115,20 @@ export default function ReportPage() {
       <div className="max-w-2xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
         <div className="text-center mb-8">
           <FileText className="h-12 w-12 text-primary mx-auto mb-4" />
-          <h1 className="text-3xl font-bold text-foreground mb-2">Report a Civic Issue</h1>
-          <p className="text-muted-foreground">Help improve your community by reporting issues that need attention</p>
+          <h1 className="text-3xl font-bold text-foreground mb-2">
+            Report a Civic Issue
+          </h1>
+          <p className="text-muted-foreground">
+            Help improve your community by reporting issues that need attention
+          </p>
         </div>
 
         <Card>
           <CardHeader>
             <CardTitle>Issue Details</CardTitle>
             <CardDescription>
-              Provide as much detail as possible to help us understand and address the issue
+              Provide as much detail as possible to help us understand and
+              address the issue
             </CardDescription>
           </CardHeader>
           <CardContent>
@@ -149,19 +162,24 @@ export default function ReportPage() {
                   <MapPin className="h-4 w-4 inline mr-1" />
                   Location
                 </Label>
-                <Input
-                  id="location"
-                  type="text"
-                  value={location}
-                  onChange={(e) => setLocation(e.target.value)}
-                  placeholder="Street address, intersection, or landmark"
+                <LocationPicker
+                  location={location}
+                  onSelect={(address, lat, lng) => {
+                    setLocation(address);
+                    console.log("Selected Location:", address, lat, lng);
+                  }}
                 />
               </div>
 
               <div className="space-y-2">
                 <Label>Photo (Optional)</Label>
-                <FileUpload onFileSelect={setSelectedFile} selectedFile={selectedFile} />
-                <p className="text-xs text-muted-foreground">Adding a photo helps us better understand the issue</p>
+                <FileUpload
+                  onFileSelect={setSelectedFile}
+                  selectedFile={selectedFile}
+                />
+                <p className="text-xs text-muted-foreground">
+                  Adding a photo helps us better understand the issue
+                </p>
               </div>
 
               <div className="flex flex-col sm:flex-row gap-4 pt-4">
@@ -184,5 +202,5 @@ export default function ReportPage() {
 
       <Footer />
     </div>
-  )
+  );
 }
