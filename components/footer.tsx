@@ -68,7 +68,7 @@ export function Footer() {
 
         <div className="border-t border-border mt-8 pt-8 text-center">
           <p className="text-muted-foreground text-sm">
-            © 2024 CityFix. All rights reserved. Building better communities together.
+            © 2025 CityFix. All rights reserved. Building better communities together.
           </p>
         </div>
       </div>
