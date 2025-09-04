@@ -29,6 +29,7 @@ export async function POST(request: NextRequest) {
     let priority = 1
     try {
       priority = await generatePriorityScore(title, description, photoUrl)
+      console.log("🎯 Final priority from AI:", priority)
     } catch (err) {
       console.warn("AI priority generation failed, using default = 1", err)
     }

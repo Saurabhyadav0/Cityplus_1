@@ -1,7 +1,7 @@
-import OpenAI from "openai"
+import Groq from "groq-sdk"
 
-const client = new OpenAI({
-  apiKey: process.env.OPENAI_API_KEY, // store in .env
+const groq = new Groq({
+  apiKey: process.env.GROQ_API_KEY, // put in your .env
 })
 
 export async function generatePriorityScore(
@@ -24,13 +24,15 @@ Rules:
 - Always return ONLY a single integer between 1 and 10.
 `
 
-  const response = await client.chat.completions.create({
-    model: "gpt-4o-mini", // latest fast + cost effective
+  const response = await groq.chat.completions.create({
+    model: "llama-3.1-8b-instant", // fast + free tier
     messages: [{ role: "user", content: prompt }],
   })
 
-  const text = response.choices[0].message?.content?.trim() || "5"
+  const text = response.choices[0]?.message?.content?.trim() || "5"
   const score = parseInt(text.match(/\d+/)?.[0] || "5", 10)
 
-  return Math.min(10, Math.max(1, score)) // clamp to 1–10
+  console.log("✅ Parsed priority score (Groq):", score)
+
+  return Math.min(10, Math.max(1, score)) // clamp 1–10
 }
