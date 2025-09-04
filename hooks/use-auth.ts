@@ -8,6 +8,7 @@ interface User {
   name: string
   email: string
   role: "CITIZEN" | "ADMIN"
+  coins: number  
 }
 
 export function useAuth() {

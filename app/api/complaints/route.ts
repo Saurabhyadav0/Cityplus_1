@@ -25,7 +25,7 @@ export async function POST(request: NextRequest) {
 
     const category = categorizeComplaint(title, description)
 
-    // ⭐ Try AI, fallback to default (1) if error
+    // ⭐ AI-based priority score
     let priority = 1
     try {
       priority = await generatePriorityScore(title, description, photoUrl)
@@ -34,6 +34,7 @@ export async function POST(request: NextRequest) {
       console.warn("AI priority generation failed, using default = 1", err)
     }
 
+    // 1️⃣ Create complaint
     const complaint = await prisma.complaint.create({
       data: {
         title,
@@ -42,24 +43,35 @@ export async function POST(request: NextRequest) {
         photoUrl,
         category,
         citizenId: Number(payload.userId),
-        priority, // ⭐ AI-generated (or fallback)
-      },
-      include: {
-        citizen: {
-          select: {
-            name: true,
-            email: true,
-          },
-        },
+        priority,
       },
     })
 
-    return NextResponse.json(complaint)
+    // 2️⃣ Update coins (+5)
+    const updatedUser = await prisma.user.update({
+      where: { id: Number(payload.userId) },
+      data: { coins: { increment: 5 } },
+      select: {
+        id: true,
+        name: true,
+        email: true,
+        coins: true,
+      },
+    })
+
+    // 3️⃣ Return complaint + updated coins
+    return NextResponse.json({
+      message: "Complaint created successfully",
+      complaint,
+      user: updatedUser,
+      reward: updatedUser.coins , // optional - tells frontend how many coins earned
+    })
   } catch (error) {
     console.error("Create complaint error:", error)
     return NextResponse.json({ message: "Internal server error" }, { status: 500 })
   }
 }
+
 
 
 export async function GET(request: NextRequest) {

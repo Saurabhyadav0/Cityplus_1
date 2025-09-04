@@ -3,13 +3,14 @@
 import Link from "next/link"
 import { Button } from "@/components/ui/button"
 import { useAuth } from "@/hooks/use-auth"
-import { Shield, Menu, X } from "lucide-react"
+import { Shield, Menu, X, Coins } from "lucide-react" // ⭐ Added coin icon
 import { useState } from "react"
 import { ThemeToggle } from "@/components/theme-toggle"
 
 export function Navbar() {
   const { user, logout } = useAuth()
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
+   {console.log(user)}
 
   return (
     <nav className="bg-background border-b border-border sticky top-0 z-50">
@@ -37,7 +38,14 @@ export function Navbar() {
           </div>
 
           {/* Desktop Right Controls */}
-          <div className="hidden md:flex items-center gap-2">
+          <div className="hidden md:flex items-center gap-4">
+            {/* ⭐ Coin Balance */}
+            {user && (
+              <div className="flex items-center gap-1 bg-muted px-3 py-1 rounded-full text-sm font-medium">
+                <Coins className="h-4 w-4 text-yellow-500" />
+                <span className="text-black">{user?.coins || 0 }</span>
+              </div>
+            )}
             <ThemeToggle />
             {user ? (
               <div className="flex items-center gap-4">
@@ -59,7 +67,13 @@ export function Navbar() {
           </div>
 
           {/* Mobile controls */}
-          <div className="md:hidden flex items-center gap-1">
+          <div className="md:hidden flex items-center gap-2">
+            {user && (
+              <div className="flex items-center gap-1 bg-muted px-2 py-1 rounded-full text-xs font-medium">
+                <Coins className="h-3 w-3 text-yellow-500" />
+                <span>{user.coins}</span>
+              </div>
+            )}
             <ThemeToggle />
             <Button variant="ghost" size="sm" onClick={() => setMobileMenuOpen(!mobileMenuOpen)}>
               {mobileMenuOpen ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}

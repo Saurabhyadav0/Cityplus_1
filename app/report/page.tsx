@@ -1,7 +1,6 @@
 "use client";
 
 import type React from "react";
-
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
@@ -22,6 +21,7 @@ import { useToast } from "@/hooks/use-toast";
 import { useAuth } from "@/hooks/use-auth";
 import { FileText, MapPin } from "lucide-react";
 import LocationPicker from "@/components/LocationPicker";
+import { CoinReward } from "@/components/CoinReward";
 
 export default function ReportPage() {
   const [title, setTitle] = useState("");
@@ -32,6 +32,8 @@ export default function ReportPage() {
   const { user } = useAuth();
   const { toast } = useToast();
   const router = useRouter();
+
+  const [coinAnim, setCoinAnim] = useState(false);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -70,9 +72,7 @@ export default function ReportPage() {
       // Create complaint
       const response = await fetch("/api/complaints", {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           title,
           description,
@@ -81,18 +81,22 @@ export default function ReportPage() {
         }),
       });
 
+      const data = await response.json();
+
       if (response.ok) {
+        // ✅ trigger toast + animation with coin balance
         toast({
           title: "Issue Reported Successfully",
-          description:
-            "Your complaint has been submitted and will be reviewed shortly.",
+          description: `You earned +5 coins 🎉 (Total: ${data?.user?.coins ?? "?"})`,
         });
-        router.push("/my-complaints");
+        setCoinAnim(true);
+
+        // Delay redirect so animation plays first
+        setTimeout(() => router.push("/my-complaints"), 2500);
       } else {
-        const error = await response.json();
         toast({
           title: "Error",
-          description: error.message || "Failed to submit complaint",
+          description: data.message || "Failed to submit complaint",
           variant: "destructive",
         });
       }
@@ -133,6 +137,7 @@ export default function ReportPage() {
           </CardHeader>
           <CardContent>
             <form onSubmit={handleSubmit} className="space-y-6">
+              {/* title */}
               <div className="space-y-2">
                 <Label htmlFor="title">Issue Title *</Label>
                 <Input
@@ -145,18 +150,20 @@ export default function ReportPage() {
                 />
               </div>
 
+              {/* description */}
               <div className="space-y-2">
                 <Label htmlFor="description">Description *</Label>
                 <Textarea
                   id="description"
                   value={description}
                   onChange={(e) => setDescription(e.target.value)}
-                  placeholder="Provide detailed information about the issue, including when you noticed it and any relevant context"
+                  placeholder="Provide detailed information about the issue"
                   rows={4}
                   required
                 />
               </div>
 
+              {/* location */}
               <div className="space-y-2">
                 <Label htmlFor="location">
                   <MapPin className="h-4 w-4 inline mr-1" />
@@ -166,11 +173,11 @@ export default function ReportPage() {
                   location={location}
                   onSelect={(address, lat, lng) => {
                     setLocation(address);
-                    console.log("Selected Location:", address, lat, lng);
                   }}
                 />
               </div>
 
+              {/* photo */}
               <div className="space-y-2">
                 <Label>Photo (Optional)</Label>
                 <FileUpload
@@ -182,6 +189,7 @@ export default function ReportPage() {
                 </p>
               </div>
 
+              {/* actions */}
               <div className="flex flex-col sm:flex-row gap-4 pt-4">
                 <Button type="submit" disabled={loading} className="flex-1">
                   {loading ? "Submitting..." : "Submit Report"}
@@ -201,6 +209,9 @@ export default function ReportPage() {
       </div>
 
       <Footer />
+
+      {/* 🎥 Coin Animation */}
+      <CoinReward visible={coinAnim} />
     </div>
   );
 }
