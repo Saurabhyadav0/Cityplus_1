@@ -42,8 +42,7 @@ export async function POST(request: NextRequest) {
     })
 
     console.log("[v0] Generating token")
-    const token = generateToken(user.id)
-
+    const token = generateToken(String(user.id))
     console.log("[v0] Registration successful")
     const response = NextResponse.json({
       user: {

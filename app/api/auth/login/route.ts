@@ -18,7 +18,7 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ message: "Invalid credentials" }, { status: 401 })
     }
 
-    const token = generateToken(user.id, user.role) // include role in the generated token so middleware can enforce admin access
+    const token = generateToken(String(user.id), user.role) // include role in the generated token so middleware can enforce admin access
 
     const response = NextResponse.json({
       user: {
